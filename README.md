@@ -30,10 +30,10 @@ Inside that directory, create a file named **main.yml** and paste this content:
 name: generate pacman game
 
 on:
-  schedule:
-    - cron: "0 0 * * *"   # run once every day at midnight (stable)
-  workflow_dispatch:
-  push:
+  schedule: # Run automatically every 24 hours
+    - cron: "0 */24 * * *"
+  workflow_dispatch: # Allows manual triggering
+  push: # Runs on every push to the main branch
     branches:
       - main
 
@@ -45,19 +45,16 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Generate pacman-contribution-graph.svg
-        uses: naturalclar/pacman-contribution-graph@latest
+      - name: generate pacman-contribution-graph.svg
+        uses: abozanona/pacman-contribution-graph@main
         with:
-          github_user_name: S0ME2
+          github_user_name: ${{ github.repository_owner }}
 
-      - name: Push pacman-contribution-graph.svg to output branch
+      - name: push pacman-contribution-graph.svg to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
-          build_dir: .   # output file is generated in the repository root
+          build_dir: dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
